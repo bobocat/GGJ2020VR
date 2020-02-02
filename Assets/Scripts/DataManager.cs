@@ -20,12 +20,13 @@ public class DataManager : MonoBehaviour
         instance = this;
         firebase.OnGetFailed += GetFailHandler;
         firebaseQueue = new FirebaseQueue(true, 3, 1f);
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
+
     }
 
     // Update is called once per frame
@@ -68,6 +69,9 @@ public class DataManager : MonoBehaviour
 
         //        fbGame.Add("code", game.code);
         //        fbGame.Add("playerPosition", gameManager.game.playerPosition);
+        fbGame.Add("foundMatchingArtifact", gameManager.game.foundMatchingArtifact);
+        fbGame.Add("saneMatch", gameManager.game.saneMatch);
+        fbGame.Add("insaneMatch", gameManager.game.insaneMatch);
         fbGame.Add("gateLevel", gameManager.game.gateLevel);
         fbGame.Add("artifact1", gameManager.game.artifact1);
         fbGame.Add("artifact2", gameManager.game.artifact2);
@@ -88,6 +92,23 @@ public class DataManager : MonoBehaviour
 
     }
 
+    public void ListenForSaneMatch()
+    {
+        observer = new FirebaseObserver(firebase.Child(gameManager.game.code + "/saneMatch"), 1f);
+        observer.OnChange += (Firebase sender, DataSnapshot snapshot) =>
+        {
+            Dictionary<string, object> dict = snapshot.Value<Dictionary<string, object>>();
+
+            Debug.Log("sane player found a match");
+
+            Artifact artifact = FindObjectOfType<Artifact>();
+            artifact.MoveArtifact();
+            
+        };
+
+        observer.Start();
+    }
+
 
     public void StartListening()
     {
@@ -96,12 +117,13 @@ public class DataManager : MonoBehaviour
         {
             Dictionary<string, object> dict = snapshot.Value<Dictionary<string, object>>();
 
+/*
             float x = System.Convert.ToSingle(dict["x"]);
             float y = System.Convert.ToSingle(dict["y"]);
             float z = System.Convert.ToSingle(dict["z"]);
 
             gameManager.game.playerPosition = new Vector3(x, y, z);
-
+*/
 //            gameManager.MovePlayer();
 
             //Debug.Log("playerposx: " + game.playerPosition);

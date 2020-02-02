@@ -20,10 +20,17 @@ public class Artifact : MonoBehaviour
         timer -= Time.deltaTime;   
         if (timer <= 0)
         {
-            GameManager.instance.CreateArtifact();
-            Destruct();
+            MoveArtifact();
         }
         
+    }
+
+    public void MoveArtifact()
+    {
+        Debug.Log("moving artifact");
+
+        GameManager.instance.CreateArtifact();
+        Destruct();
     }
 
     public void Destruct()
