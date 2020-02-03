@@ -27,6 +27,10 @@ public class Player : MonoBehaviour
         {
             GameManager.instance.GrabElderSign(other.gameObject);
         }
+        else if (other.GetComponent<Monster>() != null)
+        {
+            GameManager.instance.TriggerEndGameLoss();
+        }
 
 
     }

@@ -109,6 +109,23 @@ public class DataManager : MonoBehaviour
         observer.Start();
     }
 
+    public void ListenForInsaneMatch()
+    {
+        observer = new FirebaseObserver(firebase.Child(gameManager.game.code + "/insaneMatch"), 1f);
+        observer.OnChange += (Firebase sender, DataSnapshot snapshot) =>
+        {
+            Dictionary<string, object> dict = snapshot.Value<Dictionary<string, object>>();
+
+            Debug.Log("insane player found a match");
+
+            GameManager.instance.AddGateTime(GameManager.instance.insaneMatchAdds);
+
+        };
+
+        observer.Start();
+    }
+
+
 
     public void StartListening()
     {

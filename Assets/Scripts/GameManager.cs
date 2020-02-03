@@ -18,8 +18,14 @@ public class GameManager : MonoBehaviour
 
     public GameObject artifactPrefab;
     public GameObject elderSignPrefab;
+    public GameObject monsterPrefab;
     public Transform[] artifactSpawnPoints;
     public Transform[] elderSignSpawnPoints;
+
+    float gateTimerAdd = 0;
+
+    public int insaneMatchAdds = 15;
+    public int elderSignAdds = 15;
 
     private Player player;
 
@@ -81,6 +87,10 @@ public class GameManager : MonoBehaviour
     public void UpdateGateTimer()
     {
         gateTimer -= Time.deltaTime;
+
+        gateTimer += gateTimerAdd;
+        gateTimerAdd = 0;
+
         gateLevelSlider.value = gateTimer;
         int intGateTime = (int)gateTimer;
         if (intGateTime != game.gateLevel)
@@ -95,7 +105,7 @@ public class GameManager : MonoBehaviour
         winScreen.SetActive(true);
     }
 
-    void TriggerEndGameLoss()
+    public void TriggerEndGameLoss()
     {
         failScreen.SetActive(true);
     }
@@ -120,10 +130,26 @@ public class GameManager : MonoBehaviour
         // when the sane player finds a match it moves the artifact trigger
         DataManager.instance.ListenForSaneMatch();
 
+        DataManager.instance.ListenForInsaneMatch();
+
 
         // instantiate the player
-//        player = Instantiate(playerPrefab);
-//        player.transform.position = game.playerPosition;
+        //        player = Instantiate(playerPrefab);
+        //        player.transform.position = game.playerPosition;
+    }
+
+    public void SpawnMonster()
+    {
+        int r = Random.Range(0, elderSignSpawnPoints.Length);
+        Instantiate(monsterPrefab, elderSignSpawnPoints[r].position, Quaternion.identity);
+    }
+
+    public void AddGateTime(int amount)
+    {
+        Debug.Log("adding gate time");
+        gateTimerAdd = amount;
+//        game.gateLevel = game.gateLevel + amount;
+//        UpdateGateTimer();
     }
 
     public void GrabArtifact(string name)
@@ -133,14 +159,29 @@ public class GameManager : MonoBehaviour
         DataManager.instance.WriteArtifact1ToFirebase();
         game.gateLevel = 100;
         UpdateGateTimer();
+        StartCoroutine(SpawnMonsters());
+    }
+
+    IEnumerator SpawnMonsters()
+    {
+        yield return new WaitForSeconds(3);
+        AudioBank.instance.PlayClip(4);
+        yield return new WaitForSeconds(3);
+        SpawnMonster();
+        yield return new WaitForSeconds(10);
+        SpawnMonster();
+        yield return new WaitForSeconds(10);
+        SpawnMonster();
+        yield return new WaitForSeconds(10);
+        SpawnMonster();
     }
 
     public void GrabElderSign(GameObject GO)
     {
         Destroy(GO);
         AudioBank.instance.PlayClip(0);
-        gateTimer += 15;
-        UpdateGateTimer();
+        gateTimerAdd = elderSignAdds;
+        //UpdateGateTimer();
 
         // ensure there is always one elder sign in the world
         int count = FindObjectsOfType<ElderSign>().Length;
@@ -158,6 +199,7 @@ public class GameManager : MonoBehaviour
             AudioBank.instance.PlayClip(3);
             playMessage = false;    // turn off the orb instruction message
         }
+
     }
 
     public void CreateElderSign()
