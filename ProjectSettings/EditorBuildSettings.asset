@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/cthuluVR.unity
+    guid: 5c815a2e0d1c3d046b3da727fd6d7b8e
   m_configObjects: {}
